@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Siya Jakhotiya | Mission Control</title>
+<meta name="description" content="Siya Savan Jakhotiya, mechatronics freshman. Four shipped web apps, a Smart India Hackathon pothole-filling machine, and a mission to join the GDG Bootcamp.">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#04060c;--pan:rgba(8,12,24,.56);--line:#1f2d45;--ink:#e2ebf8;--dim:#7d90ad;--cy:#7fe3ff;--or:#ff6a2b;--gr:#5cf2a0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+.m{font:400 12px/1.5 "JetBrains Mono",ui-monospace,Menlo,monospace;color:var(--dim);letter-spacing:.04em}
+.m b{color:var(--cy);font-weight:500}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;margin:0;line-height:.95;text-transform:uppercase;letter-spacing:.01em}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:1}
+.wrap{position:relative;z-index:2;max-width:1120px;margin:0 auto;padding:0 20px}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--or);outline-offset:3px}
+/* HUD */
+.hud{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:20;display:flex;justify-content:space-between;gap:12px;padding:10px 16px;background:linear-gradient(var(--bg),transparent);pointer-events:none}
+.hud nav{pointer-events:auto;display:flex;gap:16px}.hud nav a{text-decoration:none;color:var(--dim)}.hud nav a:hover{color:var(--or)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gr);margin-right:6px;animation:bl 1.4s infinite}
+@keyframes bl{50%{opacity:.25}}
+.foot{position:fixed;bottom:env(safe-area-inset-bottom,0px);left:0;right:0;z-index:20;display:flex;justify-content:space-between;padding:10px 16px;pointer-events:none}
+@media(max-width:720px){.hud nav,.hud .mid{display:none}.foot .r{display:none}}
+.cur{position:fixed;left:0;top:0;width:36px;height:36px;margin:-18px 0 0 -18px;border:1px solid rgba(127,227,255,.55);border-radius:50%;pointer-events:none;z-index:70;transition:width .2s,height .2s,margin .2s,border-color .2s}
+.cur::before,.cur::after{content:"";position:absolute;background:var(--cy);left:50%;top:50%}
+.cur::before{width:1px;height:60%;transform:translate(-50%,-50%)}.cur::after{height:1px;width:60%;transform:translate(-50%,-50%)}
+.cur.hot{width:58px;height:58px;margin:-29px 0 0 -29px;border-color:var(--or)}
+@media(pointer:coarse){.cur{display:none}}
+/* hero */
+.hero{min-height:100vh;display:flex;align-items:center;padding:90px 0 60px}
+.hero h1{font-size:clamp(64px,14vw,190px);font-weight:700}
+.hero h1 span{display:block;color:transparent;-webkit-text-stroke:1.5px var(--ink)}
+.tag{font-size:clamp(18px,2.4vw,24px);max-width:27em;margin:22px 0 26px;color:#c4d2e8}
+.btn{display:inline-block;font:500 13px "JetBrains Mono",monospace;letter-spacing:.06em;padding:13px 20px;border:1px solid var(--cy);color:var(--cy);background:rgba(127,227,255,.06);text-decoration:none;cursor:pointer;margin:0 10px 10px 0;transition:background .2s,color .2s,box-shadow .2s}
+.btn:hover{background:var(--cy);color:#04060c;box-shadow:0 0 28px rgba(127,227,255,.45)}
+.btn.o{border-color:var(--or);color:var(--or);background:rgba(255,106,43,.07)}.btn.o:hover{background:var(--or);color:#04060c;box-shadow:0 0 28px rgba(255,106,43,.5)}
+.rd{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:36px;max-width:640px}
+@media(max-width:600px){.rd{grid-template-columns:1fr}}
+/* boxes */
+.box{position:relative;border:1px solid var(--line);background:var(--pan);backdrop-filter:blur(6px);padding:20px;overflow:hidden;transition:border-color .25s}
+.box::after{content:"";position:absolute;inset:0;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(127,227,255,.13),transparent 70%);opacity:0;transition:opacity .25s;pointer-events:none}
+.box:hover{border-color:#3b5a85}.box:hover::after{opacity:1}
+.cx{position:absolute;width:13px;height:13px;pointer-events:none}
+.cx::before,.cx::after{content:"";position:absolute;background:var(--cy);transition:background .25s}
+.cx::before{left:0;right:0;top:50%;height:1px}.cx::after{top:0;bottom:0;left:50%;width:1px}
+.box:hover .cx::before,.box:hover .cx::after{background:var(--or)}
+.cx.tl{top:-1px;left:-1px;transform:translate(-50%,-50%)}.cx.tr{top:-1px;right:-1px;transform:translate(50%,-50%)}.cx.bl{bottom:-1px;left:-1px;transform:translate(-50%,50%)}.cx.br{bottom:-1px;right:-1px;transform:translate(50%,50%)}
+.box{overflow:visible}.box .in{overflow:hidden}
+/* sections */
+section{position:relative;z-index:2;padding:90px 0}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:28px}
+.sh h2{font-size:clamp(38px,6vw,68px)}
+.two{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.brief p{margin:0 0 14px;color:#c4d2e8;max-width:36em}
+.bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+.bento .box:nth-child(1),.bento .box:nth-child(4){grid-column:span 4}.bento .box:nth-child(2),.bento .box:nth-child(3){grid-column:span 2}
+@media(max-width:820px){.bento{grid-template-columns:1fr}.bento .box{grid-column:auto!important}}
+.top{display:flex;justify-content:space-between;margin-bottom:18px}
+.box h3{font-size:36px;margin-bottom:10px}
+.box p.d{color:#b4c3da;margin:0 0 14px;font-size:16px}
+.tg{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0;list-style:none}
+.tg li{font:400 11px "JetBrains Mono",monospace;border:1px solid var(--line);padding:3px 8px;color:var(--cy)}
+.ln a{font:500 12px "JetBrains Mono",monospace;color:var(--or);margin-right:18px;text-decoration:none;letter-spacing:.05em}.ln a:hover{text-decoration:underline}
+.big{font:700 clamp(90px,16vw,200px)/.85 "Barlow Condensed",sans-serif;color:var(--or)}
+.sk{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sk .box{padding:12px 14px;font:500 14px "JetBrains Mono",monospace}
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:90px 1fr;gap:16px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.tl b{font:700 26px "Barlow Condensed",sans-serif;text-transform:uppercase}.tl span{color:var(--dim)}
+.cta h2{font-size:clamp(50px,10vw,130px)}
+/* boot + terminal */
+#boot{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;align-items:flex-end;padding:30px;transition:opacity .7s,visibility .7s}
+#boot.off{opacity:0;visibility:hidden}
+#term{position:fixed;inset:0;background:rgba(2,3,8,.86);display:none;z-index:90;padding:max(16px,env(safe-area-inset-top,0px)) 14px}
+#term.on{display:block}
+.tbox{max-width:780px;height:min(560px,92%);margin:3vh auto 0;display:flex;flex-direction:column;background:#04070f;border:1px solid #2b4268;font:14px/1.55 "JetBrains Mono",monospace;color:#cfe0f7}
+.tbar{padding:9px 14px;border-bottom:1px solid #2b4268;display:flex;justify-content:space-between;color:var(--dim)}
+.tbar button{background:none;border:0;color:inherit;font:inherit;cursor:pointer}
+#tout{flex:1;overflow:auto;padding:14px;white-space:pre-wrap}#tout .c{color:var(--or)}#tout a{color:var(--cy)}
+#tf{display:flex;gap:8px;padding:12px 14px;border-top:1px solid #2b4268}#ti{flex:1;background:none;border:0;color:inherit;font:inherit}
+.gg{display:grid;grid-template-columns:repeat(3,60px);gap:6px;margin:10px 0}
+.gg button{height:60px;border:1px solid #2b4268;background:#0a1222;cursor:pointer}.gg button.h{background:var(--or);box-shadow:0 0 18px var(--or)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+.neb{position:fixed;inset:-20%;z-index:0;filter:blur(80px) saturate(1.35);pointer-events:none}
+.neb i{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:dr 28s ease-in-out infinite alternate}
+.neb i:nth-child(1){width:62vmax;height:62vmax;left:2%;top:-4%;background:radial-gradient(circle,rgba(70,50,255,.75),transparent 66%)}
+.neb i:nth-child(2){width:54vmax;height:54vmax;right:-2%;top:22%;background:radial-gradient(circle,rgba(255,60,140,.55),transparent 66%);animation-duration:34s;animation-direction:alternate-reverse}
+.neb i:nth-child(3){width:46vmax;height:46vmax;left:30%;bottom:-6%;background:radial-gradient(circle,rgba(0,190,255,.5),transparent 66%);animation-duration:40s}
+.neb i:nth-child(4){width:26vmax;height:26vmax;left:56%;top:6%;background:radial-gradient(circle,rgba(255,106,43,.55),transparent 66%);animation-duration:22s}
+@keyframes dr{to{transform:translate(9vmax,-7vmax) scale(1.22)}}
+.gd{position:fixed;inset:0;z-index:2;pointer-events:none;background-image:radial-gradient(rgba(190,230,255,.5) 1px,transparent 1.5px),linear-gradient(rgba(127,227,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(127,227,255,.06) 1px,transparent 1px),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='110' height='110'%3E%3Cpath d='M0 0h7M0 0v7M110 0h-7M110 0v7M0 110h7M0 110v-7M110 110h-7M110 110v-7' stroke='%237fe3ff' stroke-opacity='.55' fill='none'/%3E%3C/svg%3E");background-size:22px 22px,110px 110px,110px 110px,110px 110px;-webkit-mask-image:radial-gradient(ellipse at 50% 38%,#000 30%,rgba(0,0,0,.4) 100%);mask-image:radial-gradient(ellipse at 50% 38%,#000 30%,rgba(0,0,0,.4) 100%)}
+.gd.gl{background-image:radial-gradient(#fff 1.2px,transparent 1.8px);background-size:22px 22px;-webkit-mask-image:radial-gradient(circle 200px at var(--gx,-400px) var(--gy,-400px),#000,transparent);mask-image:radial-gradient(circle 200px at var(--gx,-400px) var(--gy,-400px),#000,transparent)}
+.sc{position:fixed;left:0;right:0;height:140px;z-index:2;pointer-events:none;background:linear-gradient(transparent,rgba(127,227,255,.06),transparent);animation:sw 8s linear infinite}
+@keyframes sw{from{top:-140px}to{top:100%}}
+.hero h1{text-shadow:0 0 70px rgba(127,227,255,.28)}
+.two.map{grid-template-columns:1.6fr 1fr}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.tabs button{font:500 11px "JetBrains Mono",monospace;background:none;border:1px solid var(--line);color:var(--dim);padding:6px 10px;cursor:pointer}
+.tabs button.on{border-color:var(--or);color:var(--or)}
+@media(max-width:820px){.two.map{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="neb" aria-hidden="true"><i></i><i></i><i></i><i></i></div><canvas id="bg" aria-hidden="true"></canvas>
+<div class="gd" aria-hidden="true"></div><div class="gd gl" aria-hidden="true"></div><div class="sc" aria-hidden="true"></div><div class="cur" id="cur" aria-hidden="true"></div>
+<div id="boot" class="m"><pre id="bl" style="margin:0;color:var(--cy)"></pre></div>
+
+<div class="hud m"><span><span class="dot"></span><b>SJ-01</b> FLIGHT COMPUTER ONLINE</span><span class="mid">MISSION CLOCK <b id="ck">T+00:00:00</b></span><nav><a href="#brief">BRIEF</a><a href="#orbit">MAP</a><a href="#payloads">PAYLOADS</a><a href="#flightlog">LOG</a><a href="#contact">TRANSMIT</a></nav></div>
+<div class="foot m"><span id="co">X 0000 Y 0000</span><span class="r">ALT <b id="al">0</b> KM &nbsp; VEL <b id="ve">7.66</b> KM/S &nbsp; PRESS ` FOR TERMINAL</span></div>
+
+<main>
+<div class="wrap hero"><div>
+  <div class="m">MISSION CONTROL / PORTFOLIO / PUNE, IN 18.52N 73.86E</div>
+  <h1 id="nm" data-t="Siya">Siya <span data-t="Jakhotiya">Jakhotiya</span></h1>
+  <p class="tag">Mechatronics freshman who builds things: apps that work offline and respect privacy, and machines that fix real problems.</p>
+  <a class="btn" href="#payloads">VIEW PAYLOADS</a><button class="btn o" id="open">OPEN TERMINAL</button>
+  <div class="rd">
+    <div class="box"><span class="m">ROLE</span><br>Mechatronics, year 1<i class="x"></i></div>
+    <div class="box"><span class="m">BASE</span><br>SSPU, Pune</div>
+    <div class="box"><span class="m">TARGET</span><br>GDG Bootcamp</div>
+  </div>
+</div></div>
+
+<section id="brief"><div class="wrap">
+  <div class="sh"><h2 data-s>Mission brief</h2><span class="m">DOC 01 / WHY GDG</span></div>
+  <div class="two">
+    <div class="box brief"><div class="in">
+      <p>I’m a first-year mechatronics student, so my days are split between motors and microcontrollers and the web apps I build at night. In a few months I shipped four of them: a wedding planner, a study planner, a notes-to-flashcards tool, and a badminton coach that runs pose detection in the browser.</p>
+      <p>Every one taught me the same lesson. The best part of building is when a stranger uses it without me explaining anything. Google’s tools make that moment possible at scale: Firebase and Google Cloud for backends, the Gemini API for smart features, Android and PWAs for every phone.</p>
+      <p>I want to learn how these tools are meant to be used from the engineers who ship them. If I’m selected, I’ll turn it into workshops for first-years on my campus who have ideas but don’t know where to start.</p>
+    </div></div>
+    <div class="box"><div class="in">
+      <div class="m">OBJECTIVES</div>
+      <p class="m" style="color:var(--ink);font-size:14px;line-height:2.1;margin-top:10px"><b>[01]</b> Learn Google tech from its builders<br><b>[02]</b> Ship an app on Firebase + Gemini<br><b>[03]</b> Bring mechatronics and software together<br><b>[04]</b> Teach first-years on campus</p>
+    </div></div>
+  </div>
+</div></section>
+
+<section id="orbit"><div class="wrap">
+  <div class="sh"><h2 data-s>Orbital map</h2><span class="m">04 NODES / TAP A SATELLITE</span></div>
+  <div class="two map"><div class="box"><div class="in" style="padding:0"><canvas id="om" style="width:100%;height:min(80vw,470px);display:block" aria-label="Orbital map of four projects, use the buttons to switch"></canvas></div></div><div class="box"><div class="in" id="op"></div></div></div>
+</div></section>
+
+<section id="payloads"><div class="wrap">
+  <div class="sh"><h2 data-s>Payloads</h2><span class="m">04 DEPLOYED / ALL LIVE</span></div>
+  <div class="bento" id="pj"></div>
+</div></section>
+
+<section id="flightlog"><div class="wrap">
+  <div class="sh"><h2 data-s>Flight log</h2><span class="m">SMART INDIA HACKATHON 2026</span></div>
+  <div class="two">
+    <div class="box"><div class="in"><div class="m">INTERNAL ROUNDS / FIRST-YEAR TEAMS</div><div class="big">1ST</div><div class="m">5TH OVERALL ACROSS ALL YEARS</div></div></div>
+    <div class="box"><div class="in"><div class="m">PROJECT</div><h3>Automated pothole-filling machine</h3>
+      <p class="d" style="margin-top:12px">Potholes stay open for weeks because repairs are slow and manual. Our team built a machine to automate the filling. Competing against senior students as freshmen, we finished first in our year and fifth overall. It pushed me to combine mechatronics with software, and it’s why I want to learn how Google’s tools can power physical systems too.</p></div></div>
+  </div>
+</div></section>
+
+<section id="systems"><div class="wrap">
+  <div class="sh"><h2 data-s>Onboard systems</h2><span class="m">11 MODULES LOADED</span></div>
+  <div class="sk" id="sk"></div>
+</div></section>
+
+<section id="path"><div class="wrap">
+  <div class="sh"><h2 data-s>Trajectory</h2><span class="m">STAGE 4 PENDING</span></div>
+  <ol class="tl">
+    <li><b>Stage 1</b><div><b style="font-size:22px">Launch at SSPU</b><br><span>B.Tech Mechatronics, first year.</span></div></li>
+    <li><b>Stage 2</b><div><b style="font-size:22px">Smart India Hackathon</b><br><span>Pothole-filling machine. Ranked 1st among first-years.</span></div></li>
+    <li><b>Stage 3</b><div><b style="font-size:22px">Four apps deployed</b><br><span>JASHN, StudyFlow, NoteSnap, SmashCoach AI.</span></div></li>
+    <li><b style="color:var(--or)">Stage 4</b><div><b style="font-size:22px">GDG Bootcamp</b><br><span>Learn from Google developers, bring it back to campus.</span></div></li>
+  </ol>
+</div></section>
+
+<section id="contact" class="cta"><div class="wrap">
+  <div class="m">SIGNAL STRENGTH <b>STRONG</b> / CHANNEL OPEN</div>
+  <h2 data-s>Transmit a message</h2>
+  <p class="tag">The fastest way to reach me is email.</p>
+  <a class="btn o" href="mailto:jakhotiasiya2008@gmail.com">EMAIL</a>
+  <a class="btn" href="https://www.linkedin.com/in/siya-jakhotiya" target="_blank" rel="noopener">LINKEDIN</a>
+  <a class="btn" href="https://github.com/jakhotiasiya2008-maker" target="_blank" rel="noopener">GITHUB</a>
+  <div class="m" style="margin-top:80px;padding-bottom:50px">END OF TRANSMISSION</div>
+</div></section>
+</main>
+
+<div id="term" role="dialog" aria-label="Terminal"><div class="tbox">
+  <div class="tbar"><span>siya@mission-control ~ type help</span><button id="x" aria-label="Close terminal">CLOSE (ESC)</button></div>
+  <div id="tout"></div>
+  <form id="tf"><span>&gt;</span><input id="ti" autocomplete="off" spellcheck="false" aria-label="Command"></form>
+</div></div>
+
+<script>
+var RM=matchMedia("(prefers-reduced-motion:reduce)").matches,$=function(i){return document.getElementById(i)};
+var P=[
+{id:"PRJ-01",n:"JASHN",d:"An AI Indian wedding planner built for Hack2Skill PromptWars. Budgets are computed by tested code, never by the AI, so every rupee adds up. Gemini only suggests ideas and Plan B playbooks.",t:["TypeScript","React","Gemini API","Vercel"],m:"45 TESTS / 98% DOMAIN COVERAGE / ~51 KB GZIP / WCAG 2.2 AA",l:"https://jashn-lime.vercel.app",g:"JASHN"},
+{id:"PRJ-02",n:"StudyFlow",d:"An offline-first study planner with spaced-repetition revisions at +1, +3, +7 and +14 days. Your study data never leaves your device.",t:["React 19","IndexedDB","PWA"],m:"INSTALLABLE PWA / STREAK LEADERBOARD",l:"https://study-tracker-pwa-liard.vercel.app",g:"study-tracker-pwa"},
+{id:"PRJ-03",n:"NoteSnap",d:"Turns messy lecture notes into short revision sheets and flashcards, summarized in a Web Worker with no backend.",t:["JavaScript","Web Workers","GSAP"],m:"FULLY OFFLINE / TF-IDF / SRS CARDS",l:"https://notesnap-three.vercel.app",g:"Notesnap"},
+{id:"PRJ-04",n:"SmashCoach AI",d:"Records a badminton session and gives coach-style feedback with on-device pose detection: footwork, stroke, stance and fatigue, with a skeleton overlay on replay.",t:["React","MediaPipe","Web Worker","Recharts"],m:"VIDEO NEVER LEAVES THE PHONE / ~15 FPS ANALYSIS",l:"https://badmintoncoach.vercel.app",g:"Badminton-coach"}];
+$("pj").innerHTML=P.map(function(p){return'<article class="box"><div class="in"><div class="top m"><span>'+p.id+'</span><span><span class="dot"></span>LIVE</span></div><h3>'+p.n+'</h3><p class="d">'+p.d+'</p><ul class="tg">'+p.t.map(function(x){return"<li>"+x+"</li>"}).join("")+'</ul><div class="m" style="margin-bottom:14px">'+p.m+'</div><div class="ln"><a href="'+p.l+'" target="_blank" rel="noopener">OPEN DEMO</a><a href="https://github.com/jakhotiasiya2008-maker/'+p.g+'" target="_blank" rel="noopener">SOURCE</a></div></div></article>'}).join("");
+$("sk").innerHTML=["HTML","CSS","JavaScript","Python","C / C++","React","Firebase","Google Cloud","Git / GitHub","SQL","Android"].map(function(s){return'<div class="box">'+s+'</div>'}).join("");
+document.querySelectorAll(".box").forEach(function(b){["tl","tr","bl","br"].forEach(function(c){var i=document.createElement("i");i.className="cx "+c;b.appendChild(i)});
+ b.addEventListener("pointermove",function(e){var r=b.getBoundingClientRect();b.style.setProperty("--mx",e.clientX-r.left+"px");b.style.setProperty("--my",e.clientY-r.top+"px")})});
+
+/* scramble */
+var G="01<>/\\[]#=+*";
+function scr(el,done){var f=el.dataset.t||el.textContent,n=0;el.dataset.t=f;if(RM){el.textContent=f;return}
+ var iv=setInterval(function(){n++;var o="";for(var i=0;i<f.length;i++)o+=(f[i]===" "||i<n/2)?f[i]:G[Math.random()*G.length|0];el.textContent=o;if(n>=f.length*2){clearInterval(iv);el.textContent=f;if(done)done()}},28)}
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){scr(e.target);io.unobserve(e.target)}})},{threshold:.6});
+document.querySelectorAll("[data-s]").forEach(function(h){io.observe(h)});
+
+/* boot */
+(function(){var L=["> SJ-01 flight computer","> checking power ........ OK","> loading payloads ....... 4/4","> aligning star tracker .. OK","> linking GDG uplink ..... READY","> ALL SYSTEMS NOMINAL"],i=0,b=$("bl"),B=$("boot");
+ function fin(){B.classList.add("off");var h=$("nm");scr(h.firstChild?{set textContent(v){h.firstChild.textContent=v+" "},get textContent(){return"Siya"},dataset:{t:"Siya"}}:h);scr(h.querySelector("span"))}
+ if(RM){B.classList.add("off");return}
+ (function nx(){if(i<L.length){b.textContent+=L[i++]+"\n";setTimeout(nx,170)}else setTimeout(fin,350)})();B.onclick=fin})();
+
+/* background: orbiting satellite constellation over nebula + dot matrix */
+(function(){
+var c=$("bg"),x=c.getContext("2d"),W,H,D=Math.min(devicePixelRatio||1,2),wv=0,ly=scrollY,mx=0,my=0,qx=-999,qy=-999,t0=performance.now(),ds=document.documentElement.style,RG=[],SA=[],NR=7,NS=38,R,pcx,pcy,rx,ry,i;
+function rs(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0)}rs();addEventListener("resize",rs);
+for(i=0;i<NR;i++)RG.push({r:1.2+i*.22,tl:.25+(i*.37)%1.1,az:i*.9,sp:(.5/(1.2+i*.22))*(i%2?-1:1)});
+for(i=0;i<NS;i++)SA.push({g:i%NR,a:Math.random()*6.283,p:i<4?P[i]:null});
+addEventListener("pointermove",function(e){mx=e.clientX/W-.5;my=e.clientY/H-.5;qx=e.clientX;qy=e.clientY;$("cur").style.transform="translate("+qx+"px,"+qy+"px)";ds.setProperty("--gx",qx+"px");ds.setProperty("--gy",qy+"px");$("co").textContent="X "+String(qx).padStart(4,"0")+" Y "+String(qy).padStart(4,"0")});
+document.addEventListener("pointerover",function(e){$("cur").classList.toggle("hot",!!e.target.closest("a,button,.box"))});
+function P3(a,b,d){var X=a*Math.cos(ry)+d*Math.sin(ry),Z=-a*Math.sin(ry)+d*Math.cos(ry),Y=b*Math.cos(rx)-Z*Math.sin(rx),Z2=b*Math.sin(rx)+Z*Math.cos(rx);return[pcx+X*R,pcy+Y*R,Z2]}
+function OP(g,a){var X=Math.cos(a)*g.r,Y=Math.sin(a)*g.r*Math.sin(g.tl),Z=Math.sin(a)*g.r*Math.cos(g.tl);return P3(X*Math.cos(g.az)+Z*Math.sin(g.az),Y,-X*Math.sin(g.az)+Z*Math.cos(g.az))}
+function ln(f,n,al){var pv=null;for(var j=0;j<=n;j++){var q=f(j/n*6.283),p=P3(q[0],q[1],q[2]);if(pv){x.strokeStyle="rgba(127,227,255,"+(p[2]>0?al*.3:al)+")";x.beginPath();x.moveTo(pv[0],pv[1]);x.lineTo(p[0],p[1]);x.stroke()}pv=p}}
+function seg(a,b,col,al){x.strokeStyle="rgba("+col+","+al+")";x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke()}
+function fr(t){
+ var sy=scrollY,v=Math.min(Math.abs(sy-ly)/36,1),k,j;ly=sy;wv+=(v-wv)*.12;x.clearRect(0,0,W,H);
+ var tt=RM?0:(t-t0)/1000,pg=Math.min(sy/H,1),fade=Math.max(.35,1-pg*.75);
+ R=Math.min(W,H)*(W<720?.17:.21)*(1-.25*pg);pcx=W<720?W*.5:W*(.73-.23*pg);pcy=(W<720?H*.25:H*.46)+H*.05*pg;rx=.42+my*.45;ry=mx*.9+tt*.05;
+ x.globalAlpha=fade;
+ var gr=x.createRadialGradient(pcx-R*.35,pcy-R*.35,R*.1,pcx,pcy,R);gr.addColorStop(0,"#16305a");gr.addColorStop(1,"#050912");
+ x.fillStyle=gr;x.beginPath();x.arc(pcx,pcy,R,0,6.283);x.fill();
+ x.shadowColor="#7fe3ff";x.shadowBlur=34;x.strokeStyle="rgba(127,227,255,.55)";x.lineWidth=1.2;x.beginPath();x.arc(pcx,pcy,R,0,6.283);x.stroke();x.shadowBlur=0;x.lineWidth=.8;
+ for(k=1;k<7;k++){(function(yy,rr){ln(function(a){return[Math.cos(a)*rr,yy,Math.sin(a)*rr]},48,.3)})(Math.sin(-1.5708+k*Math.PI/7),Math.cos(-1.5708+k*Math.PI/7))}
+ for(k=0;k<12;k++){(function(m){ln(function(a){return[Math.cos(a)*Math.cos(m),Math.sin(a),Math.cos(a)*Math.sin(m)]},48,.3)})(k*Math.PI/12)}
+ for(k=0;k<NR;k++){var g=RG[k],pv=null;x.strokeStyle="rgba(127,227,255,.09)";for(j=0;j<=72;j++){var q=OP(g,j/72*6.283);if(pv){x.beginPath();x.moveTo(pv[0],pv[1]);x.lineTo(q[0],q[1]);x.stroke()}pv=q}}
+ var Q=[],L=Math.min(W,H)*.3,s,d,a,b;
+ for(i=0;i<NS;i++){s=SA[i];s.a+=RG[s.g].sp*(RM?0:.016)*(1+wv*6);Q.push(OP(RG[s.g],s.a))}
+ x.globalAlpha=Math.max(.55,fade);x.lineWidth=.7;
+ for(i=0;i<NS;i++)for(j=i+1;j<NS;j++){a=Q[i];b=Q[j];d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(d<L)seg(a,b,"127,227,255",(1-d/L)*.38)}
+ x.setLineDash([3,5]);for(i=0;i<4;i++)seg(Q[i],Q[(i+1)%4],"255,106,43",.4);x.setLineDash([]);
+ for(i=0;i<NS;i++){a=Q[i];d=Math.hypot(a[0]-qx,a[1]-qy);if(d<190)seg(a,[qx,qy],"255,154,107",(1-d/190)*.7)}
+ for(i=0;i<NS;i++){a=Q[i];s=SA[i];var hid=a[2]>0&&Math.hypot(a[0]-pcx,a[1]-pcy)<R,kk=1-a[2]*.2,al=hid?.18:1;x.globalAlpha=al*Math.max(.55,fade);
+  if(s.p){x.strokeStyle="#ff6a2b";x.lineWidth=1;x.shadowColor="#ff6a2b";x.shadowBlur=12;x.strokeRect(a[0]-4,a[1]-4,8,8);x.fillStyle="#ff6a2b";x.fillRect(a[0]-2,a[1]-2,4,4);x.shadowBlur=0;
+   var pr=(tt*14+i*6)%22;x.strokeStyle="rgba(255,106,43,"+(1-pr/22)*.6+")";x.beginPath();x.arc(a[0],a[1],6+pr,0,6.283);x.stroke();
+   x.fillStyle="#ff9a6b";x.font="10px JetBrains Mono,monospace";x.fillText(s.p.id,a[0]+12,a[1]+3)}
+  else{x.fillStyle="#e6f3ff";x.fillRect(a[0]-1.5*kk,a[1]-1.5*kk,3*kk,3*kk);x.fillStyle="rgba(127,227,255,.75)";x.fillRect(a[0]-7*kk,a[1]-.5,4.5*kk,1);x.fillRect(a[0]+2.5*kk,a[1]-.5,4.5*kk,1)}}
+ x.globalAlpha=1;
+ var sc=((t-t0)/1000)|0,pgs=sy/Math.max(1,document.documentElement.scrollHeight-H);
+ $("ck").textContent="T+"+[sc/3600|0,sc/60%60|0,sc%60].map(function(n){return String(n).padStart(2,"0")}).join(":");
+ $("al").textContent=(pgs*408).toFixed(0);$("ve").textContent=(7.66+wv*4).toFixed(2);
+ requestAnimationFrame(fr)}
+requestAnimationFrame(fr)})();
+
+/* terminal + game */
+var T=$("term"),O=$("tout"),I=$("ti"),gt=null;
+function say(s,c){O.innerHTML+=(c?'<span class="c">'+s+"</span>":s)+"\n";O.scrollTop=O.scrollHeight}
+var C={help:function(){say("Commands: about, projects, skills, sih, why, contact, play, clear, exit")},
+about:function(){say("Siya Savan Jakhotiya. Mechatronics, year 1, SSPU Pune. Builds machines and web apps.")},
+projects:function(){P.forEach(function(p){say(p.id+" "+p.n+" -> <a href='"+p.l+"' target='_blank' rel='noopener'>"+p.l.replace("https://","")+"</a>")})},
+skills:function(){say("HTML, CSS, JavaScript, Python, C/C++, React, Firebase, Google Cloud, Git/GitHub, SQL, Android")},
+sih:function(){say("SIH 2026 internal rounds: 1st among first-years, 5th overall. Automated pothole-filling machine.")},
+why:function(){say("To learn Google tech from the people who build it, then teach first-years on my campus.")},
+contact:function(){say("jakhotiasiya2008@gmail.com | linkedin.com/in/siya-jakhotiya | github.com/jakhotiasiya2008-maker")},
+clear:function(){O.innerHTML=""},exit:function(){cT()},play:function(){game()},sudo:function(){say("Permission denied. But please select me.")}};
+function oT(){T.classList.add("on");if(!O.innerHTML)say("Mission control terminal online. Type help. Try play for a game.",1);I.focus()}
+function cT(){T.classList.remove("on");clearInterval(gt)}
+$("open").onclick=oT;$("x").onclick=cT;
+addEventListener("keydown",function(e){if(e.key==="Escape")cT();if(e.key==="`"&&document.activeElement!==I){e.preventDefault();T.classList.contains("on")?cT():oT()}});
+$("tf").onsubmit=function(e){e.preventDefault();var v=I.value.trim().toLowerCase();I.value="";if(!v)return;say("> "+v.replace(/</g,"&lt;"));(C[v]||function(){say("Unknown command. Type help.")})()};
+function game(){clearInterval(gt);var sc=0,tl=20,g=document.createElement("div"),cs=[],inf=document.createElement("div"),k=0;g.className="gg";
+ for(var i=0;i<9;i++){var b=document.createElement("button");b.setAttribute("aria-label","debris tile");b.onclick=function(){if(this.classList.contains("h")){this.classList.remove("h");sc++;inf.textContent="Cleared: "+sc+"  Time: "+tl}};g.appendChild(b);cs.push(b)}
+ inf.textContent="Clear the space debris! Click the glowing tiles. Cleared: 0  Time: 20";O.appendChild(g);O.appendChild(inf);O.scrollTop=O.scrollHeight;
+ gt=setInterval(function(){k++;cs[Math.random()*9|0].classList.add("h");if(k%5===0){tl--;inf.textContent="Cleared: "+sc+"  Time: "+tl}if(tl<=0){clearInterval(gt);cs.forEach(function(c){c.disabled=true;c.classList.remove("h")});say("Orbit secured. You cleared "+sc+" pieces."+(sc>=15?" Mission success.":" Run it again?"),1)}},200)}
+/* orbital map */
+(function(){
+var c=$("om"),x=c.getContext("2d"),W=0,H=0,D=Math.min(devicePixelRatio||1,2),sel=0,hv=-1,pos=[],
+N=P.map(function(p,i){return{p:p,r:.3+i*.12,a:i*1.6+.4,s:(.42-i*.06)*(i%2?-1:1),rt:i*.55+.3}}),E=[[0,1],[1,2],[2,3],[3,0]];
+function rs(){var b=c.getBoundingClientRect();W=b.width;H=b.height;c.width=W*D;c.height=H*D;x.setTransform(D,0,0,D,0,0)}
+function info(){var p=P[sel];$("op").innerHTML='<div class="top m"><span>'+p.id+'</span><span><span class="dot"></span>LINK ACTIVE</span></div><h3>'+p.n+'</h3><p class="d">'+p.d+'</p><div class="m" style="margin-bottom:14px">'+p.m+'</div><div class="ln"><a href="'+p.l+'" target="_blank" rel="noopener">OPEN DEMO</a><a href="https://github.com/jakhotiasiya2008-maker/'+p.g+'" target="_blank" rel="noopener">SOURCE</a></div><div class="tabs">'+P.map(function(q,i){return'<button data-i="'+i+'" class="'+(i===sel?"on":"")+'">'+q.id+"</button>"}).join("")+"</div>"}
+info();
+$("op").addEventListener("click",function(e){var i=e.target.dataset&&e.target.dataset.i;if(i!==undefined){sel=+i;info()}});
+c.addEventListener("pointermove",function(e){var b=c.getBoundingClientRect(),X=e.clientX-b.left,Y=e.clientY-b.top;hv=-1;pos.forEach(function(p,i){if(Math.hypot(p[0]-X,p[1]-Y)<22)hv=i});c.style.cursor=hv>=0?"pointer":"default"});
+c.addEventListener("click",function(){if(hv>=0){sel=hv;info()}});
+function sat(p,col,big){x.save();x.translate(p[0],p[1]);x.strokeStyle=col;x.fillStyle=col;x.lineWidth=1;x.shadowColor=col;x.shadowBlur=big?16:8;x.fillRect(-3,-3,6,6);x.fillRect(-16,-1,10,2);x.fillRect(6,-1,10,2);x.shadowBlur=0;x.strokeRect(-5,-5,10,10);x.restore()}
+function fr(){requestAnimationFrame(fr);var b=c.getBoundingClientRect();if(b.bottom<0||b.top>innerHeight)return;if(Math.abs(b.width-W)>1||Math.abs(b.height-H)>1)rs();
+ var tt=RM?0:performance.now()/1000,cx=W/2,cy=H/2,i;x.clearRect(0,0,W,H);x.lineWidth=1;
+ N.forEach(function(n,i){x.strokeStyle=i===sel?"rgba(255,106,43,.28)":"rgba(127,227,255,.1)";x.beginPath();x.ellipse(cx,cy,n.r*W*.5,n.r*H*.55,n.rt,0,6.283);x.stroke();
+  var a=n.a+tt*n.s,ex=Math.cos(a)*n.r*W*.5,ey=Math.sin(a)*n.r*H*.55;pos[i]=[cx+ex*Math.cos(n.rt)-ey*Math.sin(n.rt),cy+ex*Math.sin(n.rt)+ey*Math.cos(n.rt)]});
+ var pl=pos.length;
+ x.setLineDash([3,6]);for(i=0;i<pl;i++){x.strokeStyle=i===sel?"rgba(255,106,43,.7)":"rgba(127,227,255,.2)";x.beginPath();x.moveTo(cx,cy);x.lineTo(pos[i][0],pos[i][1]);x.stroke()}x.setLineDash([]);
+ E.forEach(function(e,k){var a=pos[e[0]],b=pos[e[1]],on=e[0]===sel||e[1]===sel;x.strokeStyle=on?"rgba(255,154,107,.75)":"rgba(127,227,255,.3)";x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke();
+  var u=(tt*.35+k*.27)%1;x.fillStyle=on?"#ffb48a":"#bff1ff";x.fillRect(a[0]+(b[0]-a[0])*u-1.5,a[1]+(b[1]-a[1])*u-1.5,3,3)});
+ var pu=(tt*30)%36,g=x.createRadialGradient(cx,cy,0,cx,cy,38);g.addColorStop(0,"rgba(127,227,255,.55)");g.addColorStop(1,"rgba(127,227,255,0)");x.fillStyle=g;x.beginPath();x.arc(cx,cy,38,0,6.283);x.fill();
+ x.strokeStyle="rgba(127,227,255,"+(1-pu/36)*.6+")";x.beginPath();x.arc(cx,cy,12+pu,0,6.283);x.stroke();
+ x.fillStyle="#e2ebf8";x.font="500 12px JetBrains Mono,monospace";x.textAlign="center";x.fillText("SJ-01",cx,cy+4);x.textAlign="left";
+ N.forEach(function(n,i){var p=pos[i],on=i===sel||i===hv;sat(p,on?"#ff6a2b":"#7fe3ff",on);x.fillStyle=on?"#ff9a6b":"#a9c3e0";x.font="11px JetBrains Mono,monospace";x.fillText(n.p.id+" "+n.p.n.toUpperCase(),p[0]+20,p[1]+4)})}
+requestAnimationFrame(fr)})();
+</script>
+</body>
+</html>
